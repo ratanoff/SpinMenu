@@ -17,72 +17,72 @@ import android.widget.Scroller;
 public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickListener{
 
     /**
-     * View 之间间隔的角度
+     * Angle of view between views
      */
     private static final int ANGLE_SPACE = 45;
 
     /**
-     * View 旋转时最小转动角度的速度
+     * The minimum rotation angle of the view when rotating
      */
     private static final int MIN_PER_ANGLE = ANGLE_SPACE;
 
     /**
-     * 用于自动滚动时速度加快，无其他意义
+     * Faster for automatic scrolling, no other meaning
      */
     private static final float ACCELERATE_ANGLE_RATIO = 1.8f;
 
     /**
-     * 用于加长半径，无其他意义
+     * Used to lengthen the radius, no other meaning
      */
     private static final float RADIUS_HALF_WIDTH_RATIO = 1.2f;
 
     /**
-     * 转动角度超出可转动范围时，转动角度的迟延比率
+     * The delay ratio of the rotation angle when the rotation angle exceeds the rotatable range
      */
     private static final float DELAY_ANGLE_RATIO = 5.6f;
 
     /**
-     * 点击与拖动的切换阀值
+     * Click and drag switching threshold
      */
     private final int touchSlopAngle = 2;
 
     /**
-     * 最小和最大惯性滚动角度值 [-(getChildCount() - 1) * ANGLE_SPACE, 0]
+     * Minimum and maximum inertial roll angle values [-(getChildCount() - 1) * ANGLE_SPACE, 0]
      */
     private int minFlingAngle, maxFlingAngle;
 
     /**
-     * delayAngle: 当前转动的总角度值， perAngle：每次转动的角度值
+     * delayAngle: the total angle value of the current rotation, perAngle: the angle value of each rotation
      */
     private float delayAngle, perAngle;
 
     /**
-     * 半径：从底边到 Child 高度的中点
+     * Radius: the midpoint from the bottom edge to the Child height
      */
     private float radius;
 
     /**
-     * 每次手指按下时坐标值
+     * Coordinate value each time the finger is pressed
      */
     private float preX, preY;
 
     /**
-     * 每次转动的速度
+     * Speed of each rotation
      */
     private float anglePerSecond;
 
     /**
-     * 每次手指按下的时间值
+     * Time value per finger press
      */
     private long preTimes;
 
     /**
-     * 是否可以循环滚动
+     * Is it possible to loop through
      */
     private boolean isCyclic;
 
     /**
-     * 是否允许可以转动菜单
+     * Whether to allow the menu to be rotated
      */
     private boolean enable;
 
@@ -109,14 +109,14 @@ public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickL
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        // 宽度、高度与父容器一致
+        // Width, height are consistent with the parent container
         ViewGroup parent = ((ViewGroup )getParent());
         int measureWidth = parent.getMeasuredWidth();
         int measureHeight = parent.getMeasuredHeight();
         setMeasuredDimension(measureWidth, measureHeight);
 
         if (getChildCount() > 0) {
-            // 对子元素进行测量
+            // Measuring child elements
             measureChildren(widthMeasureSpec, heightMeasureSpec);
         }
     }
@@ -189,7 +189,7 @@ public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickL
                     perDiffAngle = -Math.abs(end - start);
                 }
                 if (!isCyclic && (delayAngle < minFlingAngle || delayAngle > maxFlingAngle)) {
-                    // 当前不是循环滚动模式，且转动的角度超出了可转角度的范围
+                    // Currently not in the cyclic scroll mode, and the angle of rotation is outside the range of the rotatable angle
                     perDiffAngle /= DELAY_ANGLE_RATIO;
                 }
                 delayAngle += perDiffAngle;
@@ -209,14 +209,14 @@ public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickL
                     scroller.startScroll(startAngle, 0, computeDistanceToEndAngle(startAngle % ANGLE_SPACE), 0, 300);
                 }
 
-                if (!isCyclic) { // 当不是循环转动时，需要校正角度
+                if (!isCyclic) { // When it is not a cyclic rotation, the angle needs to be corrected.
                     if (scroller.getFinalX() >= maxFlingAngle) {
                         scroller.setFinalX(maxFlingAngle);
                     } else if (scroller.getFinalX() <= minFlingAngle) {
                         scroller.setFinalX(minFlingAngle);
                     }
                 }
-                // post一个任务，自动滚动
+                // Post a task, scroll automatically
                 post(this);
                 break;
         }
@@ -224,29 +224,31 @@ public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickL
     }
 
     /**
-     * 计算最小和最大惯性滚动角度
+     * Calculate the minimum and maximum inertial roll angles
      */
     private void computeFlingLimitAngle() {
-        // 因为中心点在底边中点（坐标系相反），故这里计算的min和max与实际相反
+        // Since the center point is at the midpoint of the bottom edge (the coordinate system is opposite),
+        // the min and max calculated here are opposite to the actual one.
         minFlingAngle = isCyclic ? Integer.MIN_VALUE : -ANGLE_SPACE * (getChildCount() - 1);
         maxFlingAngle = isCyclic ? Integer.MAX_VALUE : 0;
     }
 
     /**
-     * 依据当前触摸点坐标计算转动的角度
+     * Calculate the angle of rotation based on the coordinates of the current touch point
      * @param xTouch
      * @param yTouch
      * @return
      */
     private float computeAngle(float xTouch, float yTouch) {
-        // 圆心点在底边的中点上，根据圆心点转化为对应坐标x, y
+        // The center point is at the midpoint of the bottom edge,
+        // and the point is converted to the corresponding coordinate x, y according to the center point.
         float x = Math.abs(xTouch - getMeasuredWidth() / 2);
         float y = Math.abs(getMeasuredHeight() - yTouch);
         return (float) (Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI);
     }
 
     /**
-     * 计算自动滚动结束时角度值
+     * Calculate the angle value at the end of automatic scrolling
      * @param remainder
      * @return
      */
@@ -254,9 +256,9 @@ public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickL
         int endAngle;
         if (remainder > 0) {
             if (Math.abs(remainder) > ANGLE_SPACE / 2) {
-                if (perAngle < 0) { // 逆时针
+                if (perAngle < 0) { // Counterclockwise
                     endAngle = ANGLE_SPACE - remainder;
-                } else { // 顺时针
+                } else { // Clockwise
                     endAngle = ANGLE_SPACE - Math.abs(remainder);
                 }
             } else {
@@ -307,7 +309,7 @@ public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickL
         int selPos = getSelectedPosition();
         if (Math.abs(perAngle) <= touchSlopAngle) {
             if (index != selPos) {
-                // 当前点击的是左右两边的一个 Item，则把点击的 Item 滚动到选中[正中间]位置
+                // The current click is an Item on both sides, and the item clicked is scrolled to the [Positive] position.
                 scroller.startScroll(-getSelectedPosition() * ANGLE_SPACE, 0, computeClickToEndAngle(index, selPos), 0, 300);
                 post(this);
             } else {
@@ -322,7 +324,7 @@ public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickL
     }
 
     /**
-     * 获取当前选中的位置
+     * Get the currently selected location
      * @return
      */
     public int getSelectedPosition() {
@@ -334,9 +336,9 @@ public class SpinMenuLayout extends ViewGroup implements Runnable, View.OnClickL
     }
 
     /**
-     * 获取圆形转动菜单的真正半径<br/>
-     * 半径是依据 child 的高度加上 SpinMenuLayout 的宽度的一半<br/>
-     * 所以当没有 child 的时候，半径取值为 -1
+     * Get the true radius of the circular rotation menu<br/>
+     * The radius is based on the height of the child plus half the width of the SpinMenuLayout<br/>
+     * So when there is no child, the radius is -1
      * @return
      */
     public int getRealRadius() {

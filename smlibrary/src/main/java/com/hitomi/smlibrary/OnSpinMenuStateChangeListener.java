@@ -1,7 +1,7 @@
 package com.hitomi.smlibrary;
 
 /**
- * 菜单状态改变时（打开或关闭）的回调接口
+ * Callback interface when the menu state changes (opened or closed)
  * Created by hitomi on 2016/9/21.
  */
 public interface OnSpinMenuStateChangeListener {

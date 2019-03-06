@@ -50,87 +50,87 @@ public class SpinMenu extends FrameLayout {
     static final int MENU_STATE_OPENED = 2;
 
     /**
-     * 左右菜单 Item 移动动画的距离
+     * Left and right menu Item Move the distance of the animation
      */
     static final float TRAN_SKNEW_VALUE = 160;
 
     /**
-     * Hint 相对 页面的上外边距
+     * Hint relative to the top margin of the page
      */
     static final int HINT_TOP_MARGIN = 15;
 
     /**
-     * 可旋转、转动布局
+     * Rotatable, rotating layout
      */
     private SpinMenuLayout spinMenuLayout;
 
     /**
-     * 菜单打开关闭动画帮助类
+     * Menu open close animation helper class
      */
     private SpinMenuAnimator spinMenuAnimator;
 
     /**
-     * 页面适配器
+     * Page adapter
      */
     private PagerAdapter pagerAdapter;
 
     /**
-     * 手势识别器
+     * Gesture recognizer
      */
     private GestureDetectorCompat menuDetector;
 
     /**
-     * 菜单状态改变监听器
+     * Menu state change listener
      */
     private OnSpinMenuStateChangeListener onSpinMenuStateChangeListener;
 
     /**
-     * 缓存 Fragment 的集合，供 {@link #pagerAdapter} 回收使用
+     *Cache a collection of Fragments for use by {@link #pagerAdapter}
      */
     private List pagerObjects;
 
     /**
-     * 菜单项集合
+     * Menu item collection
      */
     private List<SMItemLayout> smItemLayoutList;
 
     /**
-     * 页面标题字符集合
+     * Page title character set
      */
     private List<String> hintStrList;
 
     /**
-     * 页面标题字符尺寸
+     * Page title character size
      */
     private int hintTextSize = 14;
 
     /**
-     * 页面标题字符颜色
+     * Page title character color
      */
     private int hintTextColor = Color.parseColor("#666666");
 
     /**
-     * 默认打开菜单时页面缩小的比率
+     * The ratio of page reduction when the menu is opened by default
      */
     private float scaleRatio = .36f;
 
     /**
-     * 控件是否初始化的标记变量
+     * Whether the control initializes the tag variable
      */
     private boolean init = true;
 
     /**
-     * 是否启用手势识别
+     * Whether to enable gesture recognition
      */
     private boolean enableGesture;
 
     /**
-     * 当前菜单状态，默认为已关闭
+     * Current menu state, default is off
      */
     private int menuState = MENU_STATE_CLOSED;
 
     /**
-     * 滑动与触摸之间的阀值
+     * Threshold between sliding and touch
      */
     private int touchSlop = 8;
 
@@ -206,7 +206,7 @@ public class SpinMenu extends FrameLayout {
         super.onLayout(changed, left, top, right, bottom);
 
         if (init && smItemLayoutList.size() > 0) {
-            // 根据 scaleRatio 去调整菜单中 item 视图的整体大小
+            // Adjust the overall size of the item view in the menu according to scaleRatio
             int pagerWidth = (int) (getMeasuredWidth() * scaleRatio);
             int pagerHeight = (int) (getMeasuredHeight() * scaleRatio);
             SMItemLayout.LayoutParams containerLayoutParams = new SMItemLayout.LayoutParams(pagerWidth, pagerHeight);
@@ -217,26 +217,26 @@ public class SpinMenu extends FrameLayout {
                 smItemLayout = smItemLayoutList.get(i);
                 frameContainer = (FrameLayout) smItemLayout.findViewWithTag(TAG_ITEM_CONTAINER);
                 frameContainer.setLayoutParams(containerLayoutParams);
-                if (i == 0) { // 初始菜单的时候，默认显示第一个 Fragment
+                if (i == 0) { // When the initial menu is displayed, the first Fragment is displayed by default.
                     FrameLayout pagerLayout = (FrameLayout) smItemLayout.findViewWithTag(TAG_ITEM_PAGER);
-                    // 先移除第一个包含 Fragment 的布局
+                    // First remove the first layout that contains Fragment
                     frameContainer.removeView(pagerLayout);
 
-                    // 创建一个用来占位的 FrameLayout
+                    // Create a FrameLayout for placeholders
                     FrameLayout holderLayout = new FrameLayout(getContext());
                     LinearLayout.LayoutParams pagerLinLayParams = new LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
                     holderLayout.setLayoutParams(pagerLinLayParams);
 
-                    // 将占位的 FrameLayout 添加到布局中的 frameContainer 中
+                    // Add a placeholder FrameLayout to the frameContainer in the layout
                     frameContainer.addView(holderLayout, 0);
 
-                    // 添加 第一个包含 Fragment 的布局添加到 SpinMenu 中
+                    // Add the first layout containing the Fragment to the SpinMenu
                     FrameLayout.LayoutParams pagerFrameParams = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
                     pagerLayout.setLayoutParams(pagerFrameParams);
                     addView(pagerLayout);
                 }
 
-                // 显示标题
+                // Show title
                 if (hintStrList != null && !hintStrList.isEmpty() && i < hintStrList.size()) {
                     tvHint = (TextView) smItemLayout.findViewWithTag(TAG_ITEM_HINT);
                     tvHint.setText(hintStrList.get(i));
@@ -244,14 +244,14 @@ public class SpinMenu extends FrameLayout {
                     tvHint.setTextColor(hintTextColor);
                 }
 
-                // 位于菜单中当前显示 Fragment 两边的 SMItemlayout 左右移动 TRAN_SKNEW_VALUE 个距离
+                // The SMItemlayout on both sides of the currently displayed Fragment in the menu moves around TRAN_SKNEW_VALUE distance
                 if (spinMenuLayout.getSelectedPosition() + 1 == i
                         || (spinMenuLayout.isCyclic()
-                            && spinMenuLayout.getMenuItemCount() - i == spinMenuLayout.getSelectedPosition() + 1)) { // 右侧 ItemMenu
+                            && spinMenuLayout.getMenuItemCount() - i == spinMenuLayout.getSelectedPosition() + 1)) { // Right ItemMenu
                     smItemLayout.setTranslationX(TRAN_SKNEW_VALUE);
                 } else if (spinMenuLayout.getSelectedPosition() - 1 == i
                         || (spinMenuLayout.isCyclic()
-                            && spinMenuLayout.getMenuItemCount() - i == 1)) { // 左侧 ItemMenu
+                            && spinMenuLayout.getMenuItemCount() - i == 1)) { // Left ItemMenu
                     smItemLayout.setTranslationX(-TRAN_SKNEW_VALUE);
                 } else {
                     smItemLayout.setTranslationX(0);
@@ -279,7 +279,7 @@ public class SpinMenu extends FrameLayout {
     }
 
     /**
-     * 根据手机的分辨率从 px(像素) 的单位转成为 sp
+     * Convert from px (pixels) to sp by phone resolution
      * @param pxValue
      * @return
      */
@@ -315,26 +315,26 @@ public class SpinMenu extends FrameLayout {
         hintLinLayParams.topMargin = HINT_TOP_MARGIN;
         pagerAdapter.startUpdate(spinMenuLayout);
         for (int i = 0; i < pagerCount; i++) {
-            // 创建菜单父容器布局
+            // Create menu parent container layout
             SMItemLayout smItemLayout = new SMItemLayout(getContext());
             smItemLayout.setId(i + 1);
             smItemLayout.setGravity(Gravity.CENTER);
             smItemLayout.setLayoutParams(itemLinLayParams);
 
-            // 创建包裹FrameLayout
+            // Create a package FrameLayout
             FrameLayout frameContainer = new FrameLayout(getContext());
             frameContainer.setId(pagerCount + i + 1);
             frameContainer.setTag(TAG_ITEM_CONTAINER);
             frameContainer.setLayoutParams(containerLinlayParams);
 
-            // 创建 Fragment 容器
+            // Create a Fragment container
             FrameLayout framePager = new FrameLayout(getContext());
             framePager.setId(pagerCount * 2 + i + 1);
             framePager.setTag(TAG_ITEM_PAGER);
             framePager.setLayoutParams(pagerFrameParams);
             Object object = pagerAdapter.instantiateItem(framePager, i);
 
-            // 创建菜单标题 TextView
+            // Create a menu title TextView
             TextView tvHint = new TextView(getContext());
             tvHint.setId(pagerCount * 3 + i + 1);
             tvHint.setTag(TAG_ITEM_HINT);

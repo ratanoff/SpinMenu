@@ -11,7 +11,7 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 
 /**
- * 菜单打开/关闭动画 <br/>
+ * Menu on/off animation <br/>
  *
  * Created by hitomi on 2016/9/19. <br/>
  *
@@ -38,7 +38,7 @@ public class SpinMenuAnimator {
     }
 
     public void openMenuAnimator() {
-        // 打开菜单之前，将菜单状态更新为 MENU_STATE_OPEN 并且显示 SpinMenuLayout
+        // Update the menu status to MENU_STATE_OPEN and display SpinMenuLayout before opening the menu
         spinMenu.updateMenuState(SpinMenu.MENU_STATE_OPEN);
         spinMenuLayout.setVisibility(View.VISIBLE);
 
@@ -48,7 +48,7 @@ public class SpinMenuAnimator {
         final float scaleRatio = spinMenu.getScaleRatio();
         diffTranY = (showingPager.getHeight() * (1.f -  scaleRatio)) * .5f - selectItemLayout.getTop();
 
-        // 获取当前菜单中间位置左边的菜单项，并设置右移动画
+        // Get the menu item to the left of the middle position of the current menu, and set the right move picture
         ObjectAnimator leftTranXAnima = null, rightTranXAnima = null;
         if (spinMenuLayout.getSelectedPosition() - 1 > -1) {
             ViewGroup leftItemLayout = (ViewGroup) spinMenuLayout.getChildAt(spinMenuLayout.getSelectedPosition() - 1);
@@ -58,7 +58,7 @@ public class SpinMenuAnimator {
             leftTranXAnima = ObjectAnimator.ofFloat(leftItemLayout, "translationX", leftItemLayout.getTranslationX(), 0);
         }
 
-        // 获取当前菜单中间位置右边的菜单项，并设置左移动画
+        // Get the menu item to the right of the middle position of the current menu, and set the left moving picture
         if (spinMenuLayout.getSelectedPosition() + 1 < spinMenuLayout.getChildCount()) {
             ViewGroup rightItemLayout = (ViewGroup) spinMenuLayout.getChildAt(spinMenuLayout.getSelectedPosition() + 1);
             rightTranXAnima = ObjectAnimator.ofFloat(rightItemLayout, "translationX", rightItemLayout.getTranslationX(), 0);
@@ -67,7 +67,7 @@ public class SpinMenuAnimator {
             rightTranXAnima = ObjectAnimator.ofFloat(rightItemLayout, "translationX", rightItemLayout.getTranslationX(), 0);
         }
 
-        // 设置当前页面的缩放和上移动画
+        // Set the current page's zoom and move the picture
         ObjectAnimator scaleXAnima = ObjectAnimator.ofFloat(
                 showingPager, "scaleX", showingPager.getScaleX(), scaleRatio);
         ObjectAnimator scaleYAnima = ObjectAnimator.ofFloat(
@@ -93,20 +93,20 @@ public class SpinMenuAnimator {
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                // 从 SpinMenu 中移除 showingPager
+                // Remove showingPager from SpinMenu
                 spinMenu.removeView(showingPager);
 
-                // 从 selectContainer 中移除之前用来占位的 FrameLayout
+                // Remove the FrameLayout used to occupy the placeholder from the selectContainer
                 selectContainer.removeAllViews();
 
-                // 将 showingPager 添加到 selectContainer 中
+                // Add showingPager to selectContainer
                 FrameLayout.LayoutParams pagerParams = new FrameLayout.LayoutParams(
                         showingPager.getWidth(),
                         showingPager.getHeight()
                 );
                 selectContainer.addView(showingPager, pagerParams);
 
-                // 校正 showingPager 在 selectContainer 中的位置
+                // Correct the position of showingPager in selectContainer
                 float tranX = (showingPager.getWidth() * (1.f -  scaleRatio)) * .5f;
                 float tranY = (showingPager.getHeight() * (1.f -  scaleRatio)) * .5f;
                 showingPager.setTranslationX(-tranX);
@@ -116,7 +116,7 @@ public class SpinMenuAnimator {
                     onSpinMenuStateChangeListener.onMenuOpened();
                 }
 
-                // 菜单打开后，允许滑动控制 spinMenuLayout 转动。且更新菜单状态为 MENU_STATE_OPENED
+                // After the menu is opened, the slide control spinMenuLayout is allowed to rotate. And update the menu status to MENU_STATE_OPENED
                 spinMenuLayout.postEnable(true);
                 spinMenu.updateMenuState(SpinMenu.MENU_STATE_OPENED);
             }
@@ -124,30 +124,30 @@ public class SpinMenuAnimator {
     }
 
     public void closeMenuAnimator(SMItemLayout chooseItemLayout) {
-        // 关闭菜单之前更新菜单状态为 MENU_STATE_CLOSE，并且不允许滑动控制 spinMenuLayout 转动
+        // The menu state is updated to MENU_STATE_CLOSE before the menu is closed, and the slide control spinMenuLayout is not allowed to rotate.
         spinMenu.updateMenuState(SpinMenu.MENU_STATE_CLOSE);
         spinMenuLayout.postEnable(false);
 
-         // 从 chooseItemLayout 中移除包含显示 Fragment 的 FrameLayout
+         // Remove the FrameLayout containing the display Fragment from the chooseItemLayout
         FrameLayout frameContainer = (FrameLayout) chooseItemLayout.findViewWithTag(SpinMenu.TAG_ITEM_CONTAINER);
         FrameLayout pagerLayout = (FrameLayout) frameContainer.findViewWithTag(SpinMenu.TAG_ITEM_PAGER);
         frameContainer.removeView(pagerLayout);
 
-        // 创建一个用来占位的 FrameLayout
+        // Create a FrameLayout for placeholders
         FrameLayout.LayoutParams pagerFrameParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         FrameLayout holderLayout = new FrameLayout(chooseItemLayout.getContext());
         holderLayout.setLayoutParams(pagerFrameParams);
 
-        // 将占位的 FrameLayout 添加到 chooseItemLayout 布局中的 frameContainer 中
+        // Add a placeholder FrameLayout to the frameContainer in the chooseItemLayout layout
         frameContainer.addView(holderLayout);
 
-        // 添加 pagerLayout 添加到 SpinMenu 中
+        // Add pagerLayout to the SpinMenu
         pagerLayout.setLayoutParams(pagerFrameParams);
         spinMenu.addView(pagerLayout);
 
-        // 放置 pagerLayout 到同一个位置
+        // Place pagerLayout to the same location
         int currTranX = (int) (spinMenu.getWidth() * (1.f - spinMenu.getScaleRatio()) * .5f);
         int currTranY = (int) (spinMenu.getHeight() * (1.f - spinMenu.getScaleRatio()) * .5f - diffTranY);
         pagerLayout.setTranslationX(currTranX);
@@ -155,7 +155,7 @@ public class SpinMenuAnimator {
         pagerLayout.setScaleX(spinMenu.getScaleRatio());
         pagerLayout.setScaleY(spinMenu.getScaleRatio());
 
-        // 获取当前菜单中间位置左边的菜单项，并设置左移动画
+        // Get the menu item to the left of the middle position of the current menu, and set the left moving picture
         ObjectAnimator leftTranXAnima = null, rightTranXAnima = null;
         if (spinMenuLayout.getSelectedPosition() - 1 > -1) {
             ViewGroup leftItemLayout = (ViewGroup) spinMenuLayout.getChildAt(spinMenuLayout.getSelectedPosition() - 1);
@@ -167,7 +167,7 @@ public class SpinMenuAnimator {
                     leftItemLayout.getTranslationX(), -SpinMenu.TRAN_SKNEW_VALUE);
         }
 
-        // 获取当前菜单中间位置右边的菜单项，并设置右移动画
+        // Get the menu item to the right of the middle of the current menu and set the right move picture
         if (spinMenuLayout.getSelectedPosition() + 1 < spinMenuLayout.getChildCount()) {
             ViewGroup rightItemLayout = (ViewGroup) spinMenuLayout.getChildAt(spinMenuLayout.getSelectedPosition() + 1);
             rightTranXAnima = ObjectAnimator.ofFloat(rightItemLayout, "translationX",
@@ -178,7 +178,7 @@ public class SpinMenuAnimator {
                     rightItemLayout.getTranslationX(), SpinMenu.TRAN_SKNEW_VALUE);
         }
 
-        // 设置当前选中菜单的缩放，左右和下移动画
+        // Set the zoom of the currently selected menu, move the picture left and right and down
         ObjectAnimator scaleXAnima =  ObjectAnimator.ofFloat(pagerLayout, "scaleX", pagerLayout.getScaleX(), 1.f);
         ObjectAnimator scaleYAnima =  ObjectAnimator.ofFloat(pagerLayout, "scaleY", pagerLayout.getScaleX(), 1.f);
         ObjectAnimator tranXAnima = ObjectAnimator.ofFloat(pagerLayout, "translationX", 0, 0);
@@ -205,7 +205,7 @@ public class SpinMenuAnimator {
                     onSpinMenuStateChangeListener.onMenuClosed();
                 }
 
-                // 菜单关闭后，设置 spinMenuLayout 隐藏，菜单状态更新为 MENU_STATE_CLOSED
+                // After the menu is closed, set the spinMenuLayout to hide and the menu status is updated to MENU_STATE_CLOSED
                 spinMenuLayout.setVisibility(View.GONE);
                 spinMenu.updateMenuState(SpinMenu.MENU_STATE_CLOSED);
             }
